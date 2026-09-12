@@ -80,4 +80,4 @@ jobs:
           sudo systemctl enable tgbot
           sudo systemctl start tgbot
           sudo systemctl status tgbot --no-pager
-          sleep 21111
+          sleep 21900
