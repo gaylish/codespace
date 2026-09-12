@@ -71,6 +71,7 @@ jobs:
           sudo mv shell-mcp.service /etc/systemd/system/
           curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.py -o tgbot.py
           curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.service -o tgbot.service
+          sed -i "/WorkingDirectory=\/home\/runner/a Environment=\"BOT_TOKEN=${BOT_TOKEN}\"" tgbot.service
           sudo mv tgbot.service /etc/systemd/system/
           sudo systemctl daemon-reload
           sudo systemctl enable shell-mcp
