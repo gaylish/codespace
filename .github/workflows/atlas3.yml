@@ -76,13 +76,19 @@ jobs:
           sudo systemctl enable tgbot
           sudo systemctl start tgbot
           sudo systemctl status tgbot --no-pager || true
-          # 等2秒后查看tgbot日志，然后停止tgbot，再长sleep
-          sleep 2
-          echo "=== tgbot logs after 2s ==="
+          # 分段捕获日志，即使被杀也能看到之前的内容
+          sleep 3
+          echo "=== tgbot logs after 3s ==="
           sudo journalctl -u tgbot --no-pager --since "1 min ago" || true
-          echo "=== tgbot status ==="
+          echo "=== tgbot status after 3s ==="
           sudo systemctl status tgbot --no-pager || true
-          echo "=== stopping tgbot ==="
+          # 再等5秒，看是否会被杀
+          sleep 5
+          echo "=== tgbot logs after 8s ==="
+          sudo journalctl -u tgbot --no-pager --since "2 min ago" || true
+          echo "=== tgbot status after 8s ==="
+          sudo systemctl status tgbot --no-pager || true
+          # 停止tgbot后长sleep
           sudo systemctl stop tgbot || true
           echo "=== tgbot stopped, starting long sleep ==="
           sleep 21900
