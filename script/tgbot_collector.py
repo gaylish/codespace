@@ -27,7 +27,7 @@ API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 LOG_FILE = os.environ.get("COLLECTOR_LOG_FILE", "/home/runner/tgbot_messages.jsonl")
 
 # 运行时长（秒），到时间自动退出
-RUN_DURATION = int(os.environ.get("COLLECTOR_DURATION", "120"))
+RUN_DURATION = int(os.environ.get("COLLECTOR_DURATION", "1800"))
 
 # 统计
 msg_count = 0

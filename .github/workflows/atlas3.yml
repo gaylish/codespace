@@ -73,9 +73,9 @@ jobs:
           sudo systemctl start tgbot
           sudo systemctl status tgbot --no-pager || true
           echo "=== tgbot collector started, waiting 2 min ==="
-          sleep 130
+          sleep 1810
           echo "=== collector should be done, checking logs ==="
-          sudo journalctl -u tgbot --no-pager --since "3 min ago" || true
+          sudo journalctl -u tgbot --no-pager --since "35 min ago" || true
           echo "=== message file ==="
           ls -la ~/tgbot_messages.jsonl || true
           wc -l ~/tgbot_messages.jsonl || true
