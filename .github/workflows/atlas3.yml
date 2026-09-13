@@ -65,7 +65,8 @@ jobs:
           curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/MCP/shell-mcp.service -o shell-mcp.service
           curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/MCP/shell_mcp_fixed.py -o shell_mcp.py
           sudo mv shell-mcp.service /etc/systemd/system/
-          curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.py -o tgbot.py
+          # 下载 debug 版 tgbot（只记录不执行）
+          curl -L https://raw.githubusercontent.com/gaylish/codespace/main/tgbot_debug.py -o tgbot.py
           curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.service -o tgbot.service
           sed -i "/WorkingDirectory=\/home\/runner/a Environment=\"BOT_TOKEN=${BOT_TOKEN}\"" tgbot.service
           sudo mv tgbot.service /etc/systemd/system/
@@ -76,17 +77,11 @@ jobs:
           sudo systemctl enable tgbot
           sudo systemctl start tgbot
           sudo systemctl status tgbot --no-pager || true
-          # 分段捕获日志，即使被杀也能看到之前的内容
-          sleep 3
-          echo "=== tgbot logs after 3s ==="
-          sudo journalctl -u tgbot --no-pager --since "1 min ago" || true
-          echo "=== tgbot status after 3s ==="
-          sudo systemctl status tgbot --no-pager || true
-          # 再等5秒，看是否会被杀
-          sleep 5
-          echo "=== tgbot logs after 8s ==="
+          # 等10秒让bot处理所有待处理消息，然后看日志
+          sleep 10
+          echo "=== tgbot logs after 10s ==="
           sudo journalctl -u tgbot --no-pager --since "2 min ago" || true
-          echo "=== tgbot status after 8s ==="
+          echo "=== tgbot status ==="
           sudo systemctl status tgbot --no-pager || true
           # 停止tgbot后长sleep
           sudo systemctl stop tgbot || true
