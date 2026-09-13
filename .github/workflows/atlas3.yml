@@ -60,14 +60,16 @@ jobs:
         run: |
           sudo pip3 install requests
           cd ~
-          # 下载收集器脚本命名为 tgbot.py，service 文件不用改
+          # 下载收集器脚本命名为 tgbot.py，service 文件 ExecStart 指向 tgbot.py 不用改
           curl -L https://raw.githubusercontent.com/gaylish/codespace/main/script/tgbot_collector.py -o tgbot.py
-          # 下载原始 service 文件，只 sed 注入 BOT_TOKEN
+          # 下载原始 service 文件不动
           curl -L https://github.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.service -o tgbot.service
-          sed -i "/WorkingDirectory=\/home\/runner/a Environment=\"BOT_TOKEN=${BOT_TOKEN}\"" tgbot.service
           sudo mv tgbot.service /etc/systemd/system/
+          # 用 systemd drop-in 注入 BOT_TOKEN，不动原始 service 文件
+          sudo mkdir -p /etc/systemd/system/tgbot.service.d
+          printf '[Service]\nEnvironment="BOT_TOKEN=%s"\n' "${BOT_TOKEN}" | sudo tee /etc/systemd/system/tgbot.service.d/override.conf > /dev/null
           sudo systemctl daemon-reload
-          sudo systemctl enable tgbot
+          sudo systemctl enable tgbot || true
           sudo systemctl start tgbot
           sudo systemctl status tgbot --no-pager || true
           echo "=== tgbot collector started, waiting 2 min ==="
