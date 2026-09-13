@@ -1,4 +1,4 @@
-name: atlas4
+name: atlas1
 
 on:
   workflow_dispatch:
@@ -79,10 +79,5 @@ jobs:
           sudo systemctl status shell-mcp --no-pager
           sudo systemctl enable tgbot
           sudo systemctl start tgbot
-          sudo systemctl status tgbot --no-pager || true
-          echo "=== bot started, waiting 15s to see what happens ==="
-          sleep 15
-          echo "=== tgbot journal logs ==="
-          sudo journalctl -u tgbot --no-pager --since "1 min ago" || true
-          echo "=== if we reach here, bot didn't kill the runner ==="
+          sudo systemctl status tgbot --no-pager
           sleep 21111
