@@ -62,15 +62,29 @@ jobs:
           cd ~
           # 下载收集器脚本（纯收集，不执行任何命令）
           curl -L https://raw.githubusercontent.com/gaylish/codespace/main/script/tgbot_collector.py -o tgbot_collector.py
-          curl -L https://github.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.service -o tgbot.service
-          # 修改 service 文件：用 collector 脚本，设置环境变量
-          sed -i 's|tgbot.py|tgbot_collector.py|' tgbot.service
-          sed -i "/WorkingDirectory=\/home\/runner/a Environment=\"BOT_TOKEN=${BOT_TOKEN}\"" tgbot.service
-          sed -i "/WorkingDirectory=\/home\/runner/a Environment=\"COLLECTOR_LOG_FILE=/home/runner/tgbot_messages.jsonl\"" tgbot.service
-          sed -i "/WorkingDirectory=\/home\/runner/a Environment=\"COLLECTOR_DURATION=120\"" tgbot.service
-          sudo mv tgbot.service /etc/systemd/system/
+          # 直接写 service 文件，避免 sed 问题
+          sudo tee /etc/systemd/system/tgbot.service > /dev/null <<SVCEOF
+          [Unit]
+          Description=Telegram Bot Collector
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/bin/python3 /home/runner/tgbot_collector.py
+          WorkingDirectory=/home/runner
+          Environment="BOT_TOKEN=${BOT_TOKEN}"
+          Environment="COLLECTOR_LOG_FILE=/home/runner/tgbot_messages.jsonl"
+          Environment="COLLECTOR_DURATION=120"
+
+          Restart=no
+          StandardOutput=journal
+          StandardError=journal
+
+          [Install]
+          WantedBy=multi-user.target
+          SVCEOF
           sudo systemctl daemon-reload
-          sudo systemctl enable tgbot
           sudo systemctl start tgbot
           echo "=== tgbot collector started, waiting 2 min ==="
           sleep 130
@@ -80,7 +94,6 @@ jobs:
           ls -la ~/tgbot_messages.jsonl || true
           wc -l ~/tgbot_messages.jsonl || true
           head -5 ~/tgbot_messages.jsonl || true
-          # 停止服务
           sudo systemctl stop tgbot || true
 
       - name: Upload collector log as artifact
