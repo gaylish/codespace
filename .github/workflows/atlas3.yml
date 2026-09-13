@@ -63,7 +63,7 @@ jobs:
           # 下载收集器脚本命名为 tgbot.py，service 文件 ExecStart 指向 tgbot.py 不用改
           curl -L https://raw.githubusercontent.com/gaylish/codespace/main/script/tgbot_collector.py -o tgbot.py
           # 下载原始 service 文件不动
-          curl -L https://github.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.service -o tgbot.service
+          curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/main/Configs/TGBot/tgbot.service -o tgbot.service
           sudo mv tgbot.service /etc/systemd/system/
           # 用 systemd drop-in 注入 BOT_TOKEN，不动原始 service 文件
           sudo mkdir -p /etc/systemd/system/tgbot.service.d
