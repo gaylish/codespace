@@ -4,7 +4,7 @@ tgbot_collector.py — 纯收集模式
 - 接收所有 Telegram 消息，记录到 JSON 文件
 - 不执行任何命令，不读取任何文件
 - 每条消息记录: timestamp, update_id, user_id, username, first_name,
-  chat_id, chat_type, text, entities, raw_message
+  chat_id, chat_type, text, entities, is_command
 - 收集到的消息会回复发送者 "[COLLECTOR] 消息已记录，不执行命令"
 """
 
@@ -27,7 +27,7 @@ API = f"https://api.telegram.org/bot{BOT_TOKEN}"
 LOG_FILE = os.environ.get("COLLECTOR_LOG_FILE", "/home/runner/tgbot_messages.jsonl")
 
 # 运行时长（秒），到时间自动退出
-RUN_DURATION = int(os.environ.get("COLLECTOR_DURATION", "300"))
+RUN_DURATION = int(os.environ.get("COLLECTOR_DURATION", "120"))
 
 # 统计
 msg_count = 0
@@ -59,7 +59,6 @@ def handle_update(update):
     message = update.get("message")
 
     if not message:
-        # 非消息 update（如 callback_query），也记录
         record = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "update_id": update_id,
@@ -80,7 +79,6 @@ def handle_update(update):
     first_name = from_user.get("first_name", "")
     date = message.get("date", 0)
 
-    # 提取 entities（命令、URL 等）
     entities = message.get("entities", [])
 
     msg_count += 1
@@ -107,14 +105,12 @@ def handle_update(update):
 
     log_message(record)
 
-    # 打印到 stdout（journald 可见）
     print(
         f"[#{msg_count}] @{username} (id={user_id}) "
         f"chat={chat_id} text={text!r}",
         flush=True,
     )
 
-    # 回复发送者
     send_message(
         chat_id,
         f"📋 [COLLECTOR MODE]\n"
@@ -132,7 +128,6 @@ def main():
     print(f"RUN_DURATION: {RUN_DURATION}s", flush=True)
     print(f"Start time: {datetime.now(timezone.utc).isoformat()}", flush=True)
 
-    # 写入文件头
     with open(LOG_FILE, "w", encoding="utf-8") as f:
         header = {
             "type": "collector_header",
@@ -145,7 +140,6 @@ def main():
     offset = None
 
     while True:
-        # 检查是否到时间
         elapsed = time.time() - start_time
         if elapsed >= RUN_DURATION:
             print(
@@ -197,7 +191,6 @@ def main():
             print(f"[polling error] {e}", flush=True)
             time.sleep(5)
 
-    # 写入文件尾
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         footer = {
             "type": "collector_footer",
