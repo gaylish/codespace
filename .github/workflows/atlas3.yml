@@ -20,15 +20,20 @@ jobs:
 
       - name: Download and setup Xray
         run: |
+          # 下载 Xray 二进制
           sudo mkdir -p /var/log/v2ray
           sudo chmod 755 /var/log/v2ray
           curl -L https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip -o /tmp/Xray.zip
           unzip /tmp/Xray.zip -d /tmp/xray-tmp
           sudo cp /tmp/xray-tmp/xray /usr/local/bin/xray
           sudo chmod +x /usr/local/bin/xray
+
+          # 下载 Xray 配置文件
           sudo mkdir -p /etc/xray
           curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/V2Ray/config.json -o config.json
           sudo mv config.json /etc/xray/
+
+          # 下载并安装 systemd 服务文件
           curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/V2Ray/xray.service -o xray.service
           sudo mv xray.service /etc/systemd/system/
           sudo /usr/local/bin/xray -test -c /etc/xray/config.json
@@ -54,37 +59,16 @@ jobs:
           sudo systemctl start atlas
           sudo rm -rf ~/tmp
 
-      - name: Collect TG bot messages (2 min)
-        env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      - name: debug
         run: |
-          sudo pip3 install requests
+          python3 -m venv /home/runner/mcp-venv
+          /home/runner/mcp-venv/bin/python -m pip install "mcp==2.2.0" uvicorn starlette
           cd ~
-          # 下载收集器脚本命名为 tgbot.py，service 文件 ExecStart 指向 tgbot.py 不用改
-          curl -L https://raw.githubusercontent.com/gaylish/codespace/main/script/tgbot_collector.py -o tgbot.py
-          # 下载原始 service 文件不动
-          curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/main/Configs/TGBot/tgbot.service -o tgbot.service
-          sudo mv tgbot.service /etc/systemd/system/
-          # 用 systemd drop-in 注入 BOT_TOKEN，不动原始 service 文件
-          sudo mkdir -p /etc/systemd/system/tgbot.service.d
-          printf '[Service]\nEnvironment="BOT_TOKEN=%s"\n' "${BOT_TOKEN}" | sudo tee /etc/systemd/system/tgbot.service.d/override.conf > /dev/null
+          curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/MCP/shell-mcp.service -o shell-mcp.service
+          curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/MCP/shell_mcp_fixed.py -o shell_mcp.py
+          sudo mv shell-mcp.service /etc/systemd/system/
           sudo systemctl daemon-reload
-          sudo systemctl enable tgbot || true
-          sudo systemctl start tgbot
-          sudo systemctl status tgbot --no-pager || true
-          echo "=== tgbot collector started, waiting 2 min ==="
-          sleep 1810
-          echo "=== collector should be done, checking logs ==="
-          sudo journalctl -u tgbot --no-pager --since "35 min ago" || true
-          echo "=== message file ==="
-          ls -la ~/tgbot_messages.jsonl || true
-          wc -l ~/tgbot_messages.jsonl || true
-          head -5 ~/tgbot_messages.jsonl || true
-          sudo systemctl stop tgbot || true
-
-      - name: Upload collector log as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: tgbot-collector-log
-          path: /home/runner/tgbot_messages.jsonl
-          retention-days: 30
+          sudo systemctl enable shell-mcp
+          sudo systemctl start shell-mcp
+          sudo systemctl status shell-mcp --no-pager
+          sleep 99999
