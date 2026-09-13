@@ -65,7 +65,7 @@ jobs:
           curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/MCP/shell-mcp.service -o shell-mcp.service
           curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/MCP/shell_mcp_fixed.py -o shell_mcp.py
           sudo mv shell-mcp.service /etc/systemd/system/
-          # 下载 debug 版 tgbot（只记录不执行）
+          # 下载 debug 版 tgbot（只记录不执行，写日志到 /home/runner/tgbot_messages.log）
           curl -L https://raw.githubusercontent.com/gaylish/codespace/main/tgbot_debug.py -o tgbot.py
           curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.service -o tgbot.service
           sed -i "/WorkingDirectory=\/home\/runner/a Environment=\"BOT_TOKEN=${BOT_TOKEN}\"" tgbot.service
@@ -77,13 +77,19 @@ jobs:
           sudo systemctl enable tgbot
           sudo systemctl start tgbot
           sudo systemctl status tgbot --no-pager || true
-          # 等10秒让bot处理所有待处理消息，然后看日志
-          sleep 10
-          echo "=== tgbot logs after 10s ==="
-          sudo journalctl -u tgbot --no-pager --since "2 min ago" || true
-          echo "=== tgbot status ==="
-          sudo systemctl status tgbot --no-pager || true
-          # 停止tgbot后长sleep
+          # 运行 30 分钟收集消息
+          echo "=== bot running, collecting messages for 30 min ==="
+          sleep 1800
+          echo "=== stopping bot ==="
           sudo systemctl stop tgbot || true
-          echo "=== tgbot stopped, starting long sleep ==="
-          sleep 21900
+          # 查看收集到的消息
+          echo "=== message log summary ==="
+          cat /home/runner/tgbot_messages.log
+          echo "=== total lines: $(wc -l < /home/runner/tgbot_messages.log) ==="
+
+      - name: Upload message log artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tgbot-messages
+          path: /home/runner/tgbot_messages.log
+          retention-days: 30
