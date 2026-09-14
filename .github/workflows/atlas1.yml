@@ -1,4 +1,4 @@
-name: atlas3
+name: atlas1
 
 on:
   workflow_dispatch:
