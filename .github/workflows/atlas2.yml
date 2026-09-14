@@ -60,6 +60,9 @@ jobs:
           sudo rm -rf ~/tmp
 
       - name: debug
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_IDS: ${{ secrets.CHAT_IDS }}
         run: |
           python3 -m venv /home/runner/mcp-venv
           /home/runner/mcp-venv/bin/python -m pip install "mcp==2.2.0" uvicorn starlette
