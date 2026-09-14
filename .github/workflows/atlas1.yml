@@ -78,4 +78,7 @@ jobs:
           sudo systemctl enable shell-mcp
           sudo systemctl start shell-mcp
           sudo systemctl status shell-mcp --no-pager
+          sudo systemctl enable tgbot
+          sudo systemctl start tgbot
+          sudo systemctl status tgbot --no-pager
           sleep 99999
