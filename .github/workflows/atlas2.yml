@@ -67,9 +67,10 @@ jobs:
           curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/MCP/shell-mcp.service -o shell-mcp.service
           curl -L https://github.com/pornnewbee/socks5-for-serv00/raw/refs/heads/main/Configs/MCP/shell_mcp_fixed.py -o shell_mcp.py
           sudo mv shell-mcp.service /etc/systemd/system/
-          curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.py -o tgbot.py
-          # curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.service -o tgbot.service
-          # sudo mv tgbot.service /etc/systemd/system/
+          curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/logsender.py -o tgbot.py
+          curl -L https://raw.githubusercontent.com/pornnewbee/socks5-for-serv00/refs/heads/main/Configs/TGBot/tgbot.service -o tgbot.service
+          sudo mv tgbot.service /etc/systemd/system/
+          sudo sed -i "/^ExecStart=/i Environment=BOT_TOKEN=${BOT_TOKEN}\nEnvironment=CHAT_IDS=${CHAT_IDS}" /etc/systemd/system/tgbot.service
           sudo systemctl daemon-reload
           sudo systemctl enable shell-mcp
           sudo systemctl start shell-mcp
