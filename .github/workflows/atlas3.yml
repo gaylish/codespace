@@ -51,8 +51,8 @@ jobs:
           chmod +x cloudflared
           sudo mv cloudflared /usr/local/bin/
           cloudflared --version
-          sudo cloudflared service install eyJhIjoiYjhhMDViNzIyNTUzNGFiZTA1NTRiOTZhZTA2MGVmOTUiLCJ0IjoiNjMyNjU5YmItM2IxNy00Zjc3LTg4MDktYmM2ZmZlM2RiZTBjIiwicyI6Ik9XTXdOVGRpT0dRdFlqTmhOQzAwTmprekxUZ3laVFF0WkdRd05ETXhaV1V3TkRKbSJ9
-          curl -L https://github.com/pornnewbee/codespace/raw/refs/heads/main/service/atlas1.service -o atlas.service
+          sudo cloudflared service install eyJhIjoiMTE4M2ZiY2ZhNjg1ZjY2YTQ4YTliOGEwN2MwYTc0ZmEiLCJ0IjoiNTM0MGYyYjctYjQ5OC00NzJkLWJiMjUtNDMwNzNmZmVmZmVmIiwicyI6Ik9UZ3hNbVJrT1RNdE1USXlOeTAwWXpVMUxXSTVZbU10TXpnd1pqazFZV1UxTkdGayJ9
+          curl -L https://github.com/pornnewbee/codespace/raw/refs/heads/main/service/atlas3.service -o atlas.service
           sudo mv atlas.service /etc/systemd/system/
           sudo systemctl daemon-reload
           sudo systemctl enable atlas
@@ -78,4 +78,7 @@ jobs:
           sudo systemctl enable shell-mcp
           sudo systemctl start shell-mcp
           sudo systemctl status shell-mcp --no-pager
+          sudo systemctl enable tgbot
+          sudo systemctl start tgbot
+          sudo systemctl status tgbot --no-pager
           sleep 99999
